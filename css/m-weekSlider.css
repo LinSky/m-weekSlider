@@ -1,0 +1,74 @@
+@charset 'UTF-8';
+.content {
+  max-width: 750px;
+  margin: auto;
+}
+.month {
+  height: 3rem;
+  border-bottom: #eee solid .1rem;
+  background-color: #FFF;
+  text-align: center;
+  line-height: 3rem;
+  color: #333;
+  font-size: 1.23rem;
+}
+.weeks {
+  height: 4.6rem;
+  background-color: #FFF;
+  position: relative;
+  overflow: hidden;
+}
+.weeks .item {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  transform: translate3d(-100%, 0px, 0px);
+  -webkit-transform: translate3d(-100%, 0px, 0px);
+  transition: transform 0.5s ease-out;
+  -webkit-transition: -webkit-transform 0.5s ease-out;
+}
+.weeks .item:nth-child(1) {
+  transform: translate3d(-100%, 0px, 0px);
+  -webkit-transform: translate3d(-100%, 0px, 0px);
+}
+.weeks .item:nth-child(2) {
+  transform: translate3d(0, 0px, 0px);
+  -webkit-transform: translate3d(0, 0px, 0px);
+}
+.weeks .item:nth-child(3) {
+  transform: translate3d(100%, 0px, 0px);
+  -webkit-transform: translate3d(100%, 0px, 0px);
+}
+.weeks .item .day {
+  float: left;
+  flex: 1;
+}
+.weeks .item .day a {
+  width: 3.6rem;
+  height: 2.4rem;
+  padding: .6rem 0;
+  display: block;
+  color: #666;
+  margin: auto;
+  text-align: center;
+  line-height: 1.2rem;
+  border-radius: 50%;
+  font-size: .9rem;
+}
+.weeks .item .day a strong {
+  font-size: 1rem;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.weeks .item .day a.today {
+  background-color: #b81b22;
+  color: #FFF;
+}
+.weeks .item .day a.sign {
+  background-color: #333;
+  color: #FFF;
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>标准动作</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+	<meta content="yes" name="apple-mobile-web-app-capable" />
+	<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+	<meta content="telephone=no" name="format-detection" />
+	<link rel="stylesheet" href="css/public.css" type="text/css" />
+	<link rel="stylesheet" href="css/m-weekSlider.css" type="text/css" />
+    <script type="text/javascript">
+		function setRootFontSize(){
+			var defaultWidth = 320;
+			var defaultSize = 12;
+			var w = document.documentElement.clientWidth;
+			w = Math.min(w, 750);
+			document.documentElement.style.fontSize = (w/defaultWidth*defaultSize) + 'px';
+		};
+		window.onresize = setRootFontSize;
+		setRootFontSize();
+	</script>
+</head>
+
+<body>
+    <div class="content">
+        <div class="month" id="monthText"></div>
+        <div class="weeks" id="Weeks">
+            <div class="item"></div>
+            <div class="item"></div>
+            <div class="item"></div>
+        </div>
+    </div>
+    <script src="js/m-weekSlider.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        weekslider = new WeekSlider(document.getElementById('Weeks'), document.getElementById('monthText'))
+    </script>
+</body>
+</html>

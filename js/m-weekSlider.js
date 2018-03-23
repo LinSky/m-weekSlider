@@ -25,6 +25,20 @@ WeekSlider.prototype = {
         this.setMonth()
     },
 
+    getAngle: function (x, y) {
+        return Math.atan2(y, x) * 180 / Math.PI;
+    },
+
+    getTouchDir: function (posx, posy) {
+        if (Math.abs(posx) > 20) {//滑动距离
+            var angle = this.getAngle(posx, posy)
+            if (angle >= -45 && angle <= 45) {//向右
+                this.direction = 'right'
+            } else if ((angle >= 135 && angle <= 180) || (angle >= -180 && angle < -135)) {//向左
+                this.direction = 'left'
+            }
+        }
+    },
 
     touchstart: function (e) {
         var touches = e.touches[0]
@@ -39,53 +53,53 @@ WeekSlider.prototype = {
 
         this.pos.width = this.end.x - this.start.x
         this.pos.height = this.end.y - this.start.y
-        this.direction = this.pos.width < 0 ? 'left' : 'right'
+
         this.el.children[this.current].style.webkitTransform = 'translate3d('+ this.pos.width +'px, 0px, 0px)'
         this.el.children[this.current].style.opacity = 1-Math.abs(this.pos.width)/300
     },
 
     touchend: function (e) {
-        if (Math.abs(this.pos.width) >= 50) {
-            if (this.direction === 'left') {
-                this.el.children[this.current].style.webkitTransform = 'translate3d(-100%, 0px, 0px)'
-                this.el.children[this.current].style.opacity = 0
-                this.el.children[++this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
-                this.el.children[this.current].style.opacity = 1
-                var weekItem = document.createElement('div')
-                weekItem.setAttribute('class', 'item')
-                weekItem.setAttribute('type', 'new')
-                weekItem.style.webkitTransform = 'translate3d(100%, 0px, 0px)'
-                weekItem.innerHTML = this.buildWeekHtml(this.leftNum++)
-                this.rightNum++
-                this.el.appendChild(weekItem)
-                this.current = 1
-                this.el.removeChild(this.el.children[0])
-            }else if (this.direction === 'right') {
-                this.el.children[this.current].style.webkitTransform = 'translate3d(100%, 0px, 0px)'
-                this.el.children[this.current].style.opacity = 0
-                this.el.children[--this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
-                this.el.children[this.current].style.opacity = 1
-                var weekItem = document.createElement('div')
-                weekItem.setAttribute('class', 'item')
-                weekItem.setAttribute('type', 'new')
-                weekItem.style.webkitTransform = 'translate3d(-100%, 0px, 0px)'
-                weekItem.innerHTML = this.buildWeekHtml(this.rightNum--)
-                this.leftNum--
-                this.el.insertBefore(weekItem, this.el.children[0])
-                this.current = 1
-                this.el.removeChild(this.el.children[this.el.children.length-1])
-            } else {
-                this.el.children[this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
-                this.el.children[this.current].style.opacity = 1
-            }
-            this.pos.width = 0
+        var touches = e.changedTouches[0]
+        this.end.x = touches.pageX
+        this.end.y = touches.pageY
+        this.pos.width = this.end.x - this.start.x
+        this.pos.height = this.end.y - this.start.y
+        this.getTouchDir(this.pos.width, this.pos.height)
 
-            this.setMonth()
-
-        }else{
+        if (this.direction === 'left') {
+            this.el.children[this.current].style.webkitTransform = 'translate3d(-100%, 0px, 0px)'
+            this.el.children[this.current].style.opacity = 0
+            this.el.children[++this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
+            this.el.children[this.current].style.opacity = 1
+            var weekItem = document.createElement('div')
+            weekItem.setAttribute('class', 'item')
+            weekItem.setAttribute('type', 'new')
+            weekItem.style.webkitTransform = 'translate3d(100%, 0px, 0px)'
+            weekItem.innerHTML = this.buildWeekHtml(this.leftNum++)
+            this.rightNum++
+            this.el.appendChild(weekItem)
+            this.current = 1
+            this.el.removeChild(this.el.children[0])
+        }else if (this.direction === 'right') {
+            this.el.children[this.current].style.webkitTransform = 'translate3d(100%, 0px, 0px)'
+            this.el.children[this.current].style.opacity = 0
+            this.el.children[--this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
+            this.el.children[this.current].style.opacity = 1
+            var weekItem = document.createElement('div')
+            weekItem.setAttribute('class', 'item')
+            weekItem.setAttribute('type', 'new')
+            weekItem.style.webkitTransform = 'translate3d(-100%, 0px, 0px)'
+            weekItem.innerHTML = this.buildWeekHtml(this.rightNum--)
+            this.leftNum--
+            this.el.insertBefore(weekItem, this.el.children[0])
+            this.current = 1
+            this.el.removeChild(this.el.children[this.el.children.length-1])
+        } else {
             this.el.children[this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
             this.el.children[this.current].style.opacity = 1
         }
+        this.direction = null
+        this.setMonth()
     },
 
     setMonth: function () {

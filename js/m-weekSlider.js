@@ -4,17 +4,33 @@
 ==description: 用原生javascript实现的水平滑动翻页选择周日历的组件
 ==author: DL
 ==tip: 暂时仅支持手机端
-==params: el=>WeekSlider的容器, monthEl=>显示当前周属于哪年哪月的容器
+==params: el=>WeekSlider的容器
 **************************************************************
 **************************************************************/
 
 
-WeekSlider = function (el, monthEl) {
+WeekSlider = function (options) {
+
+    /*******************************************
+    ==默认参数
+    *******************************************/
+    const defaultOptions  = {
+        weekSliderEl: 'WeekSlider',
+        showMonth: false,
+        changeCallback: function () {
+
+        }
+    }
+    /*******************************************
+    ==参数合并
+    *******************************************/
+    this.opts = Object.assign({}, defaultOptions, options)
+    this.el = document.getElementById(this.opts.weekSliderEl)
+    this.sliders = null
+    this.monthEl = null
     this.start = {}
     this.end = {}
     this.pos = {}
-    this.el = el
-    this.monthEl = monthEl
     this.direction = 'left'
     this.current = 1
     this.leftNum = 2
@@ -23,17 +39,36 @@ WeekSlider = function (el, monthEl) {
 }
 WeekSlider.prototype = {
     init: function () {
-        this.el.children[this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
-        this.el.children[this.current].style.opacity = 1
-
+        this.createSliders()
         this.el.addEventListener('touchstart', this.touchstart.bind(this), false)
         this.el.addEventListener('touchmove', this.touchmove.bind(this), false)
         this.el.addEventListener('touchend', this.touchend.bind(this), false)
 
-        for (var i = 0; i < this.el.children.length; i++) {
-            this.el.children[i].innerHTML = this.buildWeekHtml(i-1)
+        for (var i = 0; i < this.el.querySelector('.sliders').children.length; i++) {
+            this.el.querySelector('.sliders').children[i].innerHTML = this.buildWeekHtml(i-1)
         }
-        this.setMonth()
+
+        if (this.opts.showMonth) {
+            this.setMonth()
+        }
+    },
+
+    createSliders: function () {
+        this.sliders = document.createElement('div')
+        this.sliders.classList.add('sliders')
+        let sliderHtml = ''
+        for (var i = 0; i < 3; i++) {
+            sliderHtml += i === this.current ? '<div class="item active"></div>' : '<div class="item"></div>'
+        }
+        this.sliders.innerHTML = sliderHtml
+        this.el.appendChild(this.sliders)
+
+        if (this.opts.showMonth) {
+            this.monthEl = document.createElement('div')
+            this.monthEl.classList.add('month')
+            this.el.insertBefore(this.monthEl, this.sliders)
+        }
+
     },
 
     getAngle: function (x, y) {
@@ -65,8 +100,8 @@ WeekSlider.prototype = {
         this.pos.width = this.end.x - this.start.x
         this.pos.height = this.end.y - this.start.y
 
-        this.el.children[this.current].style.webkitTransform = 'translate3d('+ this.pos.width +'px, 0px, 0px)'
-        this.el.children[this.current].style.opacity = 1-Math.abs(this.pos.width)/300
+        this.sliders.children[this.current].style.webkitTransform = 'translate3d('+ this.pos.width +'px, 0px, 0px)'
+        this.sliders.children[this.current].style.opacity = 1-Math.abs(this.pos.width)/300
     },
 
     touchend: function (e) {
@@ -78,47 +113,54 @@ WeekSlider.prototype = {
         this.getTouchDir(this.pos.width, this.pos.height)
 
         if (this.direction === 'left') {
-            this.el.children[this.current].style.webkitTransform = 'translate3d(-100%, 0px, 0px)'
-            this.el.children[this.current].style.opacity = 0
-            this.el.children[++this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
-            this.el.children[this.current].style.opacity = 1
+            this.sliders.children[this.current].style.webkitTransform = 'translate3d(-100%, 0px, 0px)'
+            this.sliders.children[this.current].style.opacity = 0
+            this.sliders.children[++this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
+            this.sliders.children[this.current].style.opacity = 1
             var weekItem = document.createElement('div')
             weekItem.setAttribute('class', 'item')
             weekItem.setAttribute('type', 'new')
             weekItem.style.webkitTransform = 'translate3d(100%, 0px, 0px)'
             weekItem.innerHTML = this.buildWeekHtml(this.leftNum++)
             this.rightNum++
-            this.el.appendChild(weekItem)
+            this.sliders.appendChild(weekItem)
             this.current = 1
-            this.el.removeChild(this.el.children[0])
+            this.sliders.removeChild(this.sliders.children[0])
         }else if (this.direction === 'right') {
-            this.el.children[this.current].style.webkitTransform = 'translate3d(100%, 0px, 0px)'
-            this.el.children[this.current].style.opacity = 0
-            this.el.children[--this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
-            this.el.children[this.current].style.opacity = 1
+            this.sliders.children[this.current].style.webkitTransform = 'translate3d(100%, 0px, 0px)'
+            this.sliders.children[this.current].style.opacity = 0
+            this.sliders.children[--this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
+            this.sliders.children[this.current].style.opacity = 1
             var weekItem = document.createElement('div')
             weekItem.setAttribute('class', 'item')
             weekItem.setAttribute('type', 'new')
             weekItem.style.webkitTransform = 'translate3d(-100%, 0px, 0px)'
             weekItem.innerHTML = this.buildWeekHtml(this.rightNum--)
             this.leftNum--
-            this.el.insertBefore(weekItem, this.el.children[0])
+            this.sliders.insertBefore(weekItem, this.sliders.children[0])
             this.current = 1
-            this.el.removeChild(this.el.children[this.el.children.length-1])
+            this.sliders.removeChild(this.sliders.children[this.sliders.children.length-1])
         } else {
-            this.el.children[this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
-            this.el.children[this.current].style.opacity = 1
+            this.sliders.children[this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
+            this.sliders.children[this.current].style.opacity = 1
         }
         this.direction = null
-        this.setMonth()
+
+        if (this.opts.showMonth) {
+            this.setMonth()
+        }
+
+        if (typeof this.opts.changeCallback === 'function') {
+            this.opts.changeCallback()
+        }
     },
 
     setMonth: function () {
         var nowMonth
-        if (this.el.children[1].querySelector('.sign')) {
-            nowMonth = this.el.children[1].querySelector('.sign').getAttribute('data-date')
+        if (this.sliders.children[1].querySelector('.sign')) {
+            nowMonth = this.sliders.children[1].querySelector('.sign').getAttribute('data-date')
         } else {
-            nowMonth = this.el.children[1].querySelector('.today').getAttribute('data-date')
+            nowMonth = this.sliders.children[1].querySelector('.today').getAttribute('data-date')
         }
         this.monthEl.innerHTML = nowMonth.split('-')[0] + '年' + nowMonth.split('-')[1] + '月'
     },
@@ -156,7 +198,7 @@ WeekSlider.prototype = {
      },
 
      /*******************************************
-     **小于两位数补全0的
+     ==小于两位数补全0的
      *******************************************/
      repairZero: function (num) {
          return num < 10 ? '0' + num : num

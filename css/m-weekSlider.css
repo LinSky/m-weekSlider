@@ -3,7 +3,7 @@
   max-width: 750px;
   margin: auto;
 }
-.month {
+.week_slider .month {
   height: 3rem;
   border-bottom: #eee solid .1rem;
   background-color: #FFF;
@@ -12,13 +12,13 @@
   color: #333;
   font-size: 1.23rem;
 }
-.weeks {
+.sliders {
   height: 4.6rem;
   background-color: #FFF;
   position: relative;
   overflow: hidden;
 }
-.weeks .item {
+.sliders .item {
   position: absolute;
   height: 100%;
   width: 100%;
@@ -32,23 +32,27 @@
   transition: transform 0.5s ease-out;
   -webkit-transition: -webkit-transform 0.5s ease-out;
 }
-.weeks .item:nth-child(1) {
+
+.sliders .active {
+  opacity: 1;
+  transform: translate3d(5px, 0px, 0px);
+  -webkit-transform: translate3d(0px, 0px, 0px);
+}
+
+.sliders .item:nth-child(1) {
   transform: translate3d(-100%, 0px, 0px);
   -webkit-transform: translate3d(-100%, 0px, 0px);
 }
-.weeks .item:nth-child(2) {
-  transform: translate3d(0, 0px, 0px);
-  -webkit-transform: translate3d(0, 0px, 0px);
-}
-.weeks .item:nth-child(3) {
+
+.sliders .item:nth-child(3) {
   transform: translate3d(100%, 0px, 0px);
   -webkit-transform: translate3d(100%, 0px, 0px);
 }
-.weeks .item .day {
+.sliders .item .day {
   float: left;
   flex: 1;
 }
-.weeks .item .day a {
+.sliders .item .day a {
   width: 3.6rem;
   height: 2.4rem;
   padding: .6rem 0;
@@ -60,15 +64,15 @@
   border-radius: 50%;
   font-size: .9rem;
 }
-.weeks .item .day a strong {
+.sliders .item .day a strong {
   font-size: 1rem;
   font-family: Arial, Helvetica, sans-serif;
 }
-.weeks .item .day a.today {
+.sliders .item .day a.today {
   background-color: #b81b22;
   color: #FFF;
 }
-.weeks .item .day a.sign {
+.sliders .item .day a.sign {
   background-color: #333;
   color: #FFF;
 }

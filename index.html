@@ -24,16 +24,17 @@
 
 <body>
     <div class="content">
-        <div class="month" id="monthText"></div>
-        <div class="weeks" id="Weeks">
-            <div class="item"></div>
-            <div class="item"></div>
-            <div class="item"></div>
+        <div class="week_slider" id="WeekSlider">
         </div>
     </div>
     <script src="js/m-weekSlider.js" charset="utf-8"></script>
     <script type="text/javascript">
-        weekslider = new WeekSlider(document.getElementById('Weeks'), document.getElementById('monthText'))
+        weekslider = new WeekSlider({
+			showMonth: true,
+			changeCallback: function () {
+
+			}
+		})
     </script>
 </body>
 </html>

@@ -4,7 +4,8 @@
 ==description: 用原生javascript实现的水平滑动翻页选择周日历的组件
 ==author: DL
 ==tip: 暂时仅支持手机端
-==params: el=>WeekSlider的容器
+==params: weekSliderEl: 日历容器
+          showMonth: 是否显示当前周属于哪年那月
 **************************************************************
 **************************************************************/
 
@@ -38,13 +39,18 @@ WeekSlider = function (options) {
     this.init()
 }
 WeekSlider.prototype = {
+    /*******************************************
+    ==初始化方法
+    *******************************************/
     init: function () {
         this.createSliders()
-        this.el.addEventListener('touchstart', this.touchstart.bind(this), false)
-        this.el.addEventListener('touchmove', this.touchmove.bind(this), false)
-        this.el.addEventListener('touchend', this.touchend.bind(this), false)
 
-        for (var i = 0; i < this.el.querySelector('.sliders').children.length; i++) {
+        const eventNames = ['touchstart', 'touchmove', 'touchend']
+        eventNames.map((eventName) => {
+            this.el.addEventListener(eventName, this[eventName].bind(this), false)
+        })
+
+        for (var i = 0; i < 3; i++) {
             this.el.querySelector('.sliders').children[i].innerHTML = this.buildWeekHtml(i-1)
         }
 
@@ -53,6 +59,9 @@ WeekSlider.prototype = {
         }
     },
 
+    /*******************************************
+    ==创建滑动块
+    *******************************************/
     createSliders: function () {
         this.sliders = document.createElement('div')
         this.sliders.classList.add('sliders')
@@ -71,10 +80,16 @@ WeekSlider.prototype = {
 
     },
 
+    /*******************************************
+    ==计算滑动角度
+    *******************************************/
     getAngle: function (x, y) {
         return Math.atan2(y, x) * 180 / Math.PI;
     },
 
+    /*******************************************
+    ==判断是左滑还是右滑
+    *******************************************/
     getTouchDir: function (posx, posy) {
         if (Math.abs(posx) > 20) {//滑动距离
             var angle = this.getAngle(posx, posy)
@@ -86,12 +101,18 @@ WeekSlider.prototype = {
         }
     },
 
+    /*******************************************
+    ==touchstart事件处理程序
+    *******************************************/
     touchstart: function (e) {
         var touches = e.touches[0]
         this.start.x = touches.pageX
         this.start.y = touches.pageY
     },
 
+    /*******************************************
+    ==touchmove事件处理程序
+    *******************************************/
     touchmove: function (e) {
         var touches = e.touches[0]
         this.end.x = touches.pageX
@@ -104,6 +125,9 @@ WeekSlider.prototype = {
         this.sliders.children[this.current].style.opacity = 1-Math.abs(this.pos.width)/300
     },
 
+    /*******************************************
+    ==touchend事件处理程序
+    *******************************************/
     touchend: function (e) {
         var touches = e.changedTouches[0]
         this.end.x = touches.pageX
@@ -112,14 +136,19 @@ WeekSlider.prototype = {
         this.pos.height = this.end.y - this.start.y
         this.getTouchDir(this.pos.width, this.pos.height)
 
+        var showCssText = 'transform: translate3d(0px, 0px, 0px); -webkit-transform: translate3d(0px, 0px, 0px); opacity: 1'
+        var hideCssText = ''
+        var nextIndex
+        if (this.direction === 'left') hideCssText = 'transform: translate3d(-100%, 0px, 0px); -webkit-transform: translate3d(-100%, 0px, 0px); opacity: 0'
+        if (this.direction === 'right') hideCssText = 'transform: translate3d(100%, 0px, 0px); -webkit-transform: translate3d(100%, 0px, 0px); opacity: 0'
+
+
+
         if (this.direction === 'left') {
-            this.sliders.children[this.current].style.webkitTransform = 'translate3d(-100%, 0px, 0px)'
-            this.sliders.children[this.current].style.opacity = 0
-            this.sliders.children[++this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
-            this.sliders.children[this.current].style.opacity = 1
+            this.sliders.children[this.current].style.cssText = hideCssText
+            this.sliders.children[++this.current].style.cssText = showCssText
             var weekItem = document.createElement('div')
             weekItem.setAttribute('class', 'item')
-            weekItem.setAttribute('type', 'new')
             weekItem.style.webkitTransform = 'translate3d(100%, 0px, 0px)'
             weekItem.innerHTML = this.buildWeekHtml(this.leftNum++)
             this.rightNum++
@@ -127,13 +156,10 @@ WeekSlider.prototype = {
             this.current = 1
             this.sliders.removeChild(this.sliders.children[0])
         }else if (this.direction === 'right') {
-            this.sliders.children[this.current].style.webkitTransform = 'translate3d(100%, 0px, 0px)'
-            this.sliders.children[this.current].style.opacity = 0
-            this.sliders.children[--this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
-            this.sliders.children[this.current].style.opacity = 1
+            this.sliders.children[this.current].style.cssText = hideCssText
+            this.sliders.children[--this.current].style.cssText = showCssText
             var weekItem = document.createElement('div')
             weekItem.setAttribute('class', 'item')
-            weekItem.setAttribute('type', 'new')
             weekItem.style.webkitTransform = 'translate3d(-100%, 0px, 0px)'
             weekItem.innerHTML = this.buildWeekHtml(this.rightNum--)
             this.leftNum--
@@ -144,17 +170,23 @@ WeekSlider.prototype = {
             this.sliders.children[this.current].style.webkitTransform = 'translate3d(0px, 0px, 0px)'
             this.sliders.children[this.current].style.opacity = 1
         }
-        this.direction = null
 
-        if (this.opts.showMonth) {
-            this.setMonth()
+
+        if (this.direction === 'left' || this.direction === 'right') {
+            this.direction = null
+            if (this.opts.showMonth) {
+                this.setMonth()
+            }
+            if (typeof this.opts.changeCallback === 'function') {
+                this.opts.changeCallback()
+            }
         }
 
-        if (typeof this.opts.changeCallback === 'function') {
-            this.opts.changeCallback()
-        }
     },
 
+    /*******************************************
+    ==设置月份，当this.opts.showMonth === true,才调用
+    *******************************************/
     setMonth: function () {
         var nowMonth
         if (this.sliders.children[1].querySelector('.sign')) {
@@ -165,6 +197,9 @@ WeekSlider.prototype = {
         this.monthEl.innerHTML = nowMonth.split('-')[0] + '年' + nowMonth.split('-')[1] + '月'
     },
 
+    /*******************************************
+    ==获取周所对应的日期
+    *******************************************/
     getWeek: function (date) {
         var weekText = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
         var dateOfToday = date ? new Date(date).getTime() : new Date().getTime()
@@ -187,6 +222,9 @@ WeekSlider.prototype = {
           return daysOfThisWeek
      },
 
+     /*******************************************
+     ==创建周对应的日期DOM结构
+     *******************************************/
      buildWeekHtml: function (index) {
              var time = new Date().getTime() + (7*24*60*60*1000) * index
              var str = ''

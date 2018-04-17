@@ -6,6 +6,8 @@
 ==tip: 暂时仅支持手机端
 ==params: weekSliderEl: 日历容器
           showMonth: 是否显示当前周属于哪年那月
+          changeCallback: 切换回调
+          weekClickHandle: 点击某一天回调
 **************************************************************
 **************************************************************/
 
@@ -18,9 +20,8 @@ WeekSlider = function (options) {
     const defaultOptions  = {
         weekSliderEl: 'WeekSlider',
         showMonth: false,
-        changeCallback: function () {
-
-        }
+        changeCallback: function () {},
+        weekClickHandle: null
     }
     /*******************************************
     ==参数合并
@@ -32,7 +33,7 @@ WeekSlider = function (options) {
     this.start = {}
     this.end = {}
     this.pos = {}
-    this.direction = 'left'
+    this.direction = null
     this.current = 1
     this.leftNum = 2
     this.rightNum = -2
@@ -43,8 +44,8 @@ WeekSlider.prototype = {
     ==初始化方法
     *******************************************/
     init: function () {
+        var _this = this
         this.createSliders()
-
         const eventNames = ['touchstart', 'touchmove', 'touchend']
         eventNames.map((eventName) => {
             this.el.addEventListener(eventName, this[eventName].bind(this), false)
@@ -57,6 +58,22 @@ WeekSlider.prototype = {
         if (this.opts.showMonth) {
             this.setMonth()
         }
+
+        /**
+        *weekClickHandle
+        **/
+        if (typeof this.opts.weekClickHandle === 'function') {
+            this.el.addEventListener(
+                'click',
+                function (e) {
+                    var target = e.target
+                    var date = target.dataset.date
+                    _this.opts.weekClickHandle(date)
+                },
+                false
+            )
+        }
+
     },
 
     /*******************************************
@@ -230,7 +247,7 @@ WeekSlider.prototype = {
              var str = ''
              var weeks = this.getWeek(time)
              for (var k = 0; k < weeks.length; k++) {
-                 str += '<div class="day"><a data-date="'+ weeks[k].date +'" class="'+ weeks[k].cls +'" href="javascript:;">'+ weeks[k].week +'<br><strong>'+ weeks[k].date.split('-')[2] + '</strong></a></div>'
+                 str += '<div class="day"><a data-date="'+ weeks[k].date +'" class="'+ weeks[k].cls +'" href="javascript:;">'+ weeks[k].week +'<br><strong data-date="'+ weeks[k].date +'">'+ weeks[k].date.split('-')[2] + '</strong></a></div>'
              }
              return str
      },

@@ -32,7 +32,10 @@
         weekslider = new WeekSlider({
 			showMonth: true,
 			changeCallback: function () {
-
+				console.log(1);
+			},
+			weekClickHandle: function (date) {
+				console.log(date);
 			}
 		})
     </script>
